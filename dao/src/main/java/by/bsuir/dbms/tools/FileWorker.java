@@ -1,5 +1,6 @@
 package by.bsuir.dbms.tools;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -54,5 +55,33 @@ public class FileWorker {
         file = new RandomAccessFile(path, "rw");
         file.write(st.getBytes());
         file.close();
+    }
+
+    public void create(String path) throws IOException {
+        File file = new File(path);
+        if (!file.exists()) {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        }
+    }
+
+    public void delete(String path) {
+        File file = new File(path);
+//        if (file.exists())
+            file.deleteOnExit();
+    }
+
+    public void makeDirectory(String path) {
+        File file = new File(path);
+        if (!file.isDirectory()) {
+            file.mkdirs();
+        }
+    }
+
+    public void removeDirectory(String path) {
+        File file = new File(path);
+        if (!file.isDirectory()) {
+            file.delete();
+        }
     }
 }
