@@ -1,6 +1,7 @@
 package by.bsuir.dbms.dao.Impl;
 
 import by.bsuir.dbms.constants.DAOConstants;
+import by.bsuir.dbms.dao.Table;
 import by.bsuir.dbms.tools.FileWorker;
 import com.opencsv.CSVReader;
 import org.junit.*;
@@ -35,20 +36,23 @@ public class TableImplTest {
 
         String filePath = DAOConstants.PATH_DB_TEST + "yourfile.csv";
         String[] header = "first,second,third".split(",");
-        TableImpl table = TableImpl.getInstance();
+        Table table = TableImpl.getInstance();
         List<String[]> expected = new ArrayList<String[]>();
+        CSVReader reader;
+        String[] line;
+        List<String[]> actual = new ArrayList<String[]>();
+
         expected.add("1,2,3".split(","));
         expected.add("4,5,6".split(","));
         expected.add("7,8,9".split(","));
         expected.add("10,11,12".split(","));
         expected.add("13,14,15".split(","));
+        expected.add(2, null);
         table.create(filePath, header, expected);
+        expected.remove(2);
 
-        CSVReader reader;
-        List<String[]> actual = new ArrayList<String[]>();
         try {
             reader = new CSVReader(new FileReader(filePath));
-            String[] line;
             while ((line = reader.readNext()) != null) {
                 actual.add(line);
             }

@@ -83,4 +83,12 @@ public class FileWorker {
             file.delete();
         }
     }
+
+    public boolean fileExists(String path) {
+        File file = new File(path);
+        if (file.isDirectory()) {
+            return false;
+        }
+        return file.exists();
+    }
 }

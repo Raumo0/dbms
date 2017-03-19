@@ -2,6 +2,7 @@ package by.bsuir.dbms;
 
 import by.bsuir.dbms.constants.DAOConstants;
 import by.bsuir.dbms.dao.Impl.TableImpl;
+import by.bsuir.dbms.exceptions.DAOException;
 import by.bsuir.dbms.tools.FileWorker;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVReader;
@@ -16,7 +17,7 @@ public class Main {
     private static FileWorker worker;
 
     public static void main(String[] args) throws IOException {
-//        String fimename = "yourfile.csv";
+        String fimename = "yourfile.csv";
 //        worker = new FileWorker(fimename);
 //
 //        worker.write("1997,Ford,E350,\"ac, abs, moon\",3000.00\n" +
@@ -56,8 +57,12 @@ public class Main {
         a.add(header);
         a.add(header);
         a.add(header);
-        table.create(DAOConstants.PATH_DB_TEST + "yourfile.csv", header, a);
-////        table.delete(DAOConstants.PATH_DB_TEST + "dflsadf.csv");
+        try {
+            table.create(DAOConstants.PATH_DB_TEST + "yourfile.csv", header, a);
+        } catch (DAOException e) {
+            e.printStackTrace();
+        }
+//        table.delete(DAOConstants.PATH_DB_TEST + "yourfile.csv");
 //
 
 //        CSVParser parser = new CSVParser();
