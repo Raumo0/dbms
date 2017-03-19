@@ -1,8 +1,12 @@
 package by.bsuir.dbms.tools;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import by.bsuir.dbms.exceptions.FileException;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileWorker {
     private String path;
@@ -51,10 +55,72 @@ public class FileWorker {
         return res;
     }
 
+    public List<String[]> readCSV() throws FileException {
+        CSVReader reader ;
+        List<String[]> result = new ArrayList<String[]>();
+        try {
+            reader = new CSVReader(new FileReader(path));
+            String[] line;
+            while ((line = reader.readNext()) != null) {
+                result.add(line);
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new FileException(e);
+        }
+        return result;
+    }
+
+    public String[] readHeaderCSV() throws FileException {
+        CSVReader reader ;
+        String[] result;
+        try {
+            reader = new CSVReader(new FileReader(path));
+            result = reader.readNext();
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new FileException(e);
+        }
+        return result;
+    }
+
     public void write(String st) throws IOException {
         file = new RandomAccessFile(path, "rw");
         file.write(st.getBytes());
         file.close();
+    }
+
+    public void writeCSV(List<String[]> rows) throws FileException {
+        CSVWriter writer;
+        try {
+            writer = new CSVWriter(new FileWriter(path));
+            writer.writeAll(rows);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new FileException(e);
+        }
+    }
+
+
+    public void writeAppendCSV(String[] rows) {
+        List<String[]> lines = new ArrayList<>();
+        lines.add(rows);
+        this.writeAppendCSV(lines);
+    }
+
+    public void writeAppendCSV(List<String[]> rows) {
+        CSVWriter writer;
+        try {
+            writer = new CSVWriter(new FileWriter(path, true));
+            if (rows != null)
+                writer.writeAll(rows);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void create(String path) throws IOException {

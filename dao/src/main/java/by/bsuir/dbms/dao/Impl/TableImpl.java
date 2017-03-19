@@ -2,16 +2,13 @@ package by.bsuir.dbms.dao.Impl;
 
 import by.bsuir.dbms.dao.Table;
 import by.bsuir.dbms.exceptions.DAOException;
+import by.bsuir.dbms.exceptions.FileException;
 import by.bsuir.dbms.tools.FileWorker;
-import com.opencsv.CSVWriter;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TableImpl implements Table {
-    private FileWorker fileWorker;
-
     private TableImpl() {}
 
     public static TableImpl getInstance() {
@@ -27,25 +24,19 @@ public class TableImpl implements Table {
     }
 
     public void create(String name, String[] header, List<String[]> rows) throws DAOException {
-        CSVWriter writer;
-        fileWorker = new FileWorker(name);
+        FileWorker fileWorker = new FileWorker(name);
+        List<String[]> lines = new ArrayList<String[]>(rows);
+        lines.add(0, header);
         try {
-            fileWorker.create(name);
-            writer = new CSVWriter(new FileWriter(name));
-            if (header == null)
-                header = new String[]{};
-            writer.writeNext(header);
-            if (rows != null)
-                writer.writeAll(rows);
-            writer.close();
-        } catch (IOException e) {
+            fileWorker.writeCSV(lines);
+        } catch (FileException e) {
             e.printStackTrace();
             throw new DAOException(e);
         }
     }
 
     public void delete(String name) {
-        fileWorker = new FileWorker(name);
+        FileWorker fileWorker = new FileWorker(name);
         fileWorker.delete(name);
     }
 

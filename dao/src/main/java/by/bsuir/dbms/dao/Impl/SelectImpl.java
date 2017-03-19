@@ -2,17 +2,12 @@ package by.bsuir.dbms.dao.Impl;
 
 import by.bsuir.dbms.dao.Select;
 import by.bsuir.dbms.exceptions.DAOException;
+import by.bsuir.dbms.exceptions.FileException;
 import by.bsuir.dbms.tools.FileWorker;
-import com.opencsv.CSVReader;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class SelectImpl implements Select {
-    private FileWorker fileWorker;
-
     private SelectImpl() {
     }
 
@@ -21,15 +16,11 @@ public class SelectImpl implements Select {
     }
 
     public List<String[]> selectAllFromTable(String table) throws DAOException {
-        CSVReader reader ;
-        List<String[]> result = new ArrayList<String[]>();
+        FileWorker fileWorker = new FileWorker(table);
+        List<String[]> result;
         try {
-            reader = new CSVReader(new FileReader(table));
-            String[] line;
-            while ((line = reader.readNext()) != null) {
-                result.add(line);
-            }
-        } catch (IOException e) {
+            result = fileWorker.readCSV();
+        } catch (FileException e) {
             e.printStackTrace();
             throw new DAOException(e);
         }
