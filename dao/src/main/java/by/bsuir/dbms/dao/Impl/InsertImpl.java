@@ -5,7 +5,9 @@ import by.bsuir.dbms.exceptions.DAOException;
 import by.bsuir.dbms.exceptions.FileException;
 import by.bsuir.dbms.tools.FileWorker;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class InsertImpl implements Insert {
     private InsertImpl() {
@@ -16,19 +18,29 @@ public class InsertImpl implements Insert {
     }
 
     public boolean insertByValues(String table, String[] columns, String[] values) throws DAOException {
-        String[] tableCol;
+        String[] header;
         FileWorker fileWorker = new FileWorker(table);
+        List<String> row = new ArrayList<>();
         if (!fileWorker.fileExists(table))
             throw new DAOException();
         try {
-            tableCol = fileWorker.readHeaderCSV();
-            if (tableCol == null)
+            header = fileWorker.readHeaderCSV();
+            if (header == null)
                 throw new DAOException();
             for (String col : columns){
-                if (!Arrays.asList(tableCol).contains(col))
+                if (!Arrays.asList(header).contains(col))
                     throw new DAOException();
             }
-            fileWorker.writeAppendCSV(values);
+            int i = 0;
+            for (String col : header) {
+                if (!Arrays.asList(columns).contains(col))
+                    row.add("");
+                else {
+                    row.add(values[i]);
+                    i++;
+                }
+            }
+            fileWorker.writeAppendCSV(row.toArray(new String[]{}));
         } catch (FileException e) {
             e.printStackTrace();
             throw new DAOException(e);
