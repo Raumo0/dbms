@@ -67,8 +67,7 @@ public class FileWorker {
 
     public void delete(String path) {
         File file = new File(path);
-//        if (file.exists())
-            file.deleteOnExit();
+        file.delete();
     }
 
     public void makeDirectory(String path) {
