@@ -51,7 +51,8 @@ public class SelectImplTest {
         Assert.assertArrayEquals(msg, expected.get(1), actual.get(1));
         Assert.assertArrayEquals(msg, expected.get(2), actual.get(2));
         Assert.assertArrayEquals(msg, expected.get(3), actual.get(3));
-        fileWorker.delete(table);
+        fileWorker.close();
+        FileWorker.delete(table);
     }
 
 }

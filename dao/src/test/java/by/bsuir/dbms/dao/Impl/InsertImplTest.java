@@ -62,6 +62,8 @@ public class InsertImplTest {
         Assert.assertEquals(msg, expected.size(), actual.size());
         Assert.assertArrayEquals(msg, expected.get(1), actual.get(1));
         Assert.assertArrayEquals(msg, expected.get(2), actual.get(2));
+        fileWorker.close();
+        FileWorker.delete(table);
     }
 
     @Test
@@ -74,7 +76,7 @@ public class InsertImplTest {
         String table = DAOConstants.PATH_DB_TEST + "insert_different.csv";
         FileWorker fileWorker;
         Insert insert = InsertImpl.getInstance();
-        
+
         if (FileWorker.fileExists(table))
             FileWorker.delete(table);
 
@@ -100,5 +102,7 @@ public class InsertImplTest {
         Assert.assertEquals(msg, expected.size(), actual.size());
         Assert.assertArrayEquals(msg, expected.get(1), actual.get(1));
         Assert.assertArrayEquals(msg, expected.get(2), actual.get(2));
+        fileWorker.close();
+        Assert.assertTrue(FileWorker.delete(table));
     }
 }

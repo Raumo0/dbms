@@ -75,7 +75,6 @@ public class TableImplTest {
             Assert.assertArrayEquals(msg, expected.get(i), actual.get(i));
         }
         reader.close();
-        fileReader.close();
         Assert.assertTrue(FileWorker.delete(filePath));
     }
 
@@ -90,12 +89,9 @@ public class TableImplTest {
         TableImpl table = TableImpl.getInstance();
 
         fileWorker.create(filePath);
-
         Assert.assertTrue(msg, fileWorker.fileExists(filePath));
-
         fileWorker.close();
         table.delete(filePath);
-
         Assert.assertFalse(msg, FileWorker.fileExists(filePath));
     }
 }
