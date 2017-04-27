@@ -12,13 +12,11 @@ public class DatabaseImpl implements Database {
     }
 
     public void create(String name) {
-        FileWorker fileWorker = new FileWorker(name);
-        fileWorker.makeDirectory(name);
+        FileWorker.makeDirectory(name);
     }
 
     public void delete(String name) {
-        FileWorker fileWorker = new FileWorker(name);
-        fileWorker.removeDirectory(name);
+        FileWorker.removeDirectory(name);
     }
 
     private static class SingletonHolder {

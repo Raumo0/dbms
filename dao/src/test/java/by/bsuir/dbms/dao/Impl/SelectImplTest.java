@@ -8,8 +8,6 @@ import org.junit.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
-
 public class SelectImplTest {
     private static String assertMsg;
 
@@ -32,8 +30,11 @@ public class SelectImplTest {
     public void selectAllFromTable() throws Exception {
         String msg = Thread.currentThread().getStackTrace()[1].getMethodName() + assertMsg;
 
-        String table = DAOConstants.PATH_DB_TEST + "select.csv";
-        FileWorker fileWorker = new FileWorker(table);
+        String table = DAOConstants.PATH_DB_TEST +
+                Thread.currentThread().getStackTrace()[1].getClassName() +
+                "_" +
+                Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileWorker fileWorker = new FileWorker(table, "rw");
         List<String[]> expected = new ArrayList<>();
         List<String[]> actual;
         Select select = SelectImpl.getInstance();
@@ -50,6 +51,8 @@ public class SelectImplTest {
         Assert.assertArrayEquals(msg, expected.get(1), actual.get(1));
         Assert.assertArrayEquals(msg, expected.get(2), actual.get(2));
         Assert.assertArrayEquals(msg, expected.get(3), actual.get(3));
+        fileWorker.close();
+        FileWorker.delete(table);
     }
 
 }

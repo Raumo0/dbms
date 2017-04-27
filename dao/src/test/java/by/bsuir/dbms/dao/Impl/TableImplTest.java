@@ -6,7 +6,6 @@ import by.bsuir.dbms.tools.FileWorker;
 import com.opencsv.CSVReader;
 import org.junit.*;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,14 +33,20 @@ public class TableImplTest {
     public void create() throws Exception {
         String msg = Thread.currentThread().getStackTrace()[1].getMethodName() + assertMsg;
 
-        String filePath = DAOConstants.PATH_DB_TEST + "yourfile.csv";
+        String filePath = DAOConstants.PATH_DB_TEST +
+                Thread.currentThread().getStackTrace()[1].getClassName() +
+                "_" +
+                Thread.currentThread().getStackTrace()[1].getMethodName();
         String[] header = "first,second,third".split(",");
         Table table = TableImpl.getInstance();
         List<String[]> expected = new ArrayList<String[]>();
         CSVReader reader;
         String[] line;
         List<String[]> actual = new ArrayList<String[]>();
+        FileReader fileReader;
 
+        if (FileWorker.fileExists(filePath))
+            FileWorker.delete(filePath);
         expected.add("1,2,3".split(","));
         expected.add("4,5,6".split(","));
         expected.add("7,8,9".split(","));
@@ -50,14 +55,18 @@ public class TableImplTest {
         expected.add(2, null);
         table.create(filePath, header, expected);
         expected.remove(2);
+        fileReader = new FileReader(filePath);
 
         try {
-            reader = new CSVReader(new FileReader(filePath));
+            reader = new CSVReader(fileReader);
             while ((line = reader.readNext()) != null) {
                 actual.add(line);
             }
         } catch (IOException e) {
             throw new Exception(e);
+        }
+        finally {
+            fileReader.close();
         }
 
         expected.add(0, header);
@@ -65,22 +74,24 @@ public class TableImplTest {
         for (int i = 0; i < expected.size(); i++){
             Assert.assertArrayEquals(msg, expected.get(i), actual.get(i));
         }
+        reader.close();
+        Assert.assertTrue(FileWorker.delete(filePath));
     }
 
     @Test
     public void delete() throws Exception {
         String msg = Thread.currentThread().getStackTrace()[1].getMethodName() + assertMsg;
-        String name = DAOConstants.PATH_DB_TEST + "yourfile.csv";
-        FileWorker fileWorker = new FileWorker(name);
-        File file = new File(name);
+        String filePath = DAOConstants.PATH_DB_TEST +
+                Thread.currentThread().getStackTrace()[1].getClassName() +
+                "_" +
+                Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileWorker fileWorker = new FileWorker(filePath, "rw");
         TableImpl table = TableImpl.getInstance();
 
-        fileWorker.create(name);
-
-        Assert.assertTrue(msg, file.exists());
-
-        table.delete(name);
-
-        Assert.assertFalse(msg, file.exists());
+        fileWorker.create(filePath);
+        Assert.assertTrue(msg, fileWorker.fileExists(filePath));
+        fileWorker.close();
+        table.delete(filePath);
+        Assert.assertFalse(msg, FileWorker.fileExists(filePath));
     }
 }

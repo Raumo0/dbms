@@ -19,15 +19,16 @@ public class InsertImpl implements Insert {
 
     public boolean insertByValues(String table, String[] columns, String[] values) throws DAOException {
         String[] header;
-        FileWorker fileWorker = new FileWorker(table);
-        List<String> row = new ArrayList<>();
-        if (!fileWorker.fileExists(table))
-            throw new DAOException();
+        FileWorker fileWorker = null;
         try {
+            fileWorker = new FileWorker(table, "rw");
+            List<String> row = new ArrayList<>();
+            if (!fileWorker.fileExists(table))
+                throw new DAOException();
             header = fileWorker.readHeaderCSV();
             if (header == null)
                 throw new DAOException();
-            for (String col : columns){
+            for (String col : columns) {
                 if (!Arrays.asList(header).contains(col))
                     throw new DAOException();
             }
@@ -44,6 +45,13 @@ public class InsertImpl implements Insert {
         } catch (FileException e) {
             e.printStackTrace();
             throw new DAOException(e);
+        }
+        finally {
+            try {
+                fileWorker.close();
+            } catch (FileException e) {
+                throw new DAOException(e);
+            }
         }
         return true;
     }

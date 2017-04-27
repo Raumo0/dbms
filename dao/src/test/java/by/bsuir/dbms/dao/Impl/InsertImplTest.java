@@ -5,7 +5,6 @@ import by.bsuir.dbms.dao.Insert;
 import by.bsuir.dbms.tools.FileWorker;
 import org.junit.*;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,18 +34,19 @@ public class InsertImplTest {
         List<String[]> actual;
         List<String[]> expected = new ArrayList<>();
         String table = DAOConstants.PATH_DB_TEST + "insert.csv";
-        FileWorker fileWorker = new FileWorker(table);
         Insert insert = InsertImpl.getInstance();
-        File file = new File(table);
+        FileWorker fileWorker;
+        if (FileWorker.fileExists(table))
+             FileWorker.delete(table);
+        FileWorker.create(table);
+        fileWorker = new FileWorker(table, "rw");
 
-        if (file.exists())
-            file.delete();
-        file.getParentFile().mkdirs();
-        file.createNewFile();
         fileWorker.write("\"id\",\"name\",\"sex\"\n");
+        fileWorker.close();
         expected.add(new String[]{"id", "name", "sex"});//columns
         expected.add(new String[]{"1", "Steve", "male"});//values
         completed = insert.insertByValues(table, expected.get(0), expected.get(1));
+        fileWorker = new FileWorker(table, "rw");
         actual = fileWorker.readCSV();
 
         Assert.assertTrue(msg, completed);
@@ -62,6 +62,8 @@ public class InsertImplTest {
         Assert.assertEquals(msg, expected.size(), actual.size());
         Assert.assertArrayEquals(msg, expected.get(1), actual.get(1));
         Assert.assertArrayEquals(msg, expected.get(2), actual.get(2));
+        fileWorker.close();
+        FileWorker.delete(table);
     }
 
     @Test
@@ -72,14 +74,13 @@ public class InsertImplTest {
         List<String[]> actual;
         List<String[]> expected = new ArrayList<>();
         String table = DAOConstants.PATH_DB_TEST + "insert_different.csv";
-        FileWorker fileWorker = new FileWorker(table);
+        FileWorker fileWorker;
         Insert insert = InsertImpl.getInstance();
-        File file = new File(table);
 
-        if (file.exists())
-            file.delete();
-        file.getParentFile().mkdirs();
-        file.createNewFile();
+        if (FileWorker.fileExists(table))
+            FileWorker.delete(table);
+
+        fileWorker = new FileWorker(table, "rw");
         fileWorker.write("\"id\",\"name\",\"sex\"\n");
         expected.add(new String[]{"id", "sex"});//columns
         expected.add(new String[]{"1", "male"});//values
@@ -101,5 +102,7 @@ public class InsertImplTest {
         Assert.assertEquals(msg, expected.size(), actual.size());
         Assert.assertArrayEquals(msg, expected.get(1), actual.get(1));
         Assert.assertArrayEquals(msg, expected.get(2), actual.get(2));
+        fileWorker.close();
+        Assert.assertTrue(FileWorker.delete(table));
     }
 }
