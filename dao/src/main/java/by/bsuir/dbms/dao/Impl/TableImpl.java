@@ -24,20 +24,27 @@ public class TableImpl implements Table {
     }
 
     public void create(String name, String[] header, List<String[]> rows) throws DAOException {
-        FileWorker fileWorker = new FileWorker(name);
-        List<String[]> lines = new ArrayList<String[]>(rows);
-        lines.add(0, header);
+        FileWorker fileWorker = null;
         try {
+            fileWorker = new FileWorker(name, "rw");
+        List<String[]> lines = new ArrayList<>(rows);
+        lines.add(0, header);
             fileWorker.writeCSV(lines);
         } catch (FileException e) {
             e.printStackTrace();
             throw new DAOException(e);
         }
+        finally {
+            try {
+                fileWorker.close();
+            } catch (FileException | NullPointerException e) {
+                throw new DAOException(e);
+            }
+        }
     }
 
     public void delete(String name) {
-        FileWorker fileWorker = new FileWorker(name);
-        fileWorker.delete(name);
+        FileWorker.delete(name);
     }
 
     private static class SingletonHolder{

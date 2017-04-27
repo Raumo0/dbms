@@ -16,13 +16,21 @@ public class SelectImpl implements Select {
     }
 
     public List<String[]> selectAllFromTable(String table) throws DAOException {
-        FileWorker fileWorker = new FileWorker(table);
+        FileWorker fileWorker = null;
         List<String[]> result;
         try {
+            fileWorker = new FileWorker(table, "r");
             result = fileWorker.readCSV();
         } catch (FileException e) {
             e.printStackTrace();
             throw new DAOException(e);
+        }
+        finally {
+            try {
+                fileWorker.close();
+            } catch (FileException e) {
+                throw new DAOException(e);
+            }
         }
         return result;
     }

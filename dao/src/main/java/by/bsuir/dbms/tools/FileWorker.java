@@ -12,149 +12,204 @@ public class FileWorker {
     private String path;
     private RandomAccessFile file;
 
-    public FileWorker(String path) {
+    public FileWorker(String path, String mode) throws FileException {
         this.path = path;
+        try {
+            file = new RandomAccessFile(path, mode);//"rw"
+        } catch (FileNotFoundException e) {
+            throw new FileException(e);
+        }
     }
 
-    public long goTo(int num) throws IOException {
-        file = new RandomAccessFile(path, "r");
-        file.seek(num);
-        long pointer = file.getFilePointer();
-        file.close();
-
+    public long goTo(int num) throws FileException {
+        long pointer;
+        try {
+            file.seek(num);
+            pointer = file.getFilePointer();
+        } catch (IOException e) {
+            throw new FileException(e);
+        }
         return pointer;
     }
 
-    public String read() throws IOException {
-        file = new RandomAccessFile(path, "r");
+    public String read() throws FileException {
         String res = "";
-        int b = file.read();
-        while(b != -1){
-            res = res + (char)b;
+        int b;
+        try {
             b = file.read();
+            while(b != -1){
+                res = res + (char)b;
+                b = file.read();
+            }
+        } catch (IOException e) {
+            throw new FileException(e);
         }
-        file.close();
-
         return res;
     }
 
-    public String readFrom(int numberSymbol) throws IOException {
-        file = new RandomAccessFile(path, "r");
+    public String readFrom(int numberSymbol) throws FileException {
         String res = "";
+        try {
+            file.seek(numberSymbol);
+            int b = file.read();
 
-        file.seek(numberSymbol);
-        int b = file.read();
+            while (b != -1) {
+                res = res + (char) b;
 
-        while(b != -1){
-            res = res + (char)b;
-
-            b = file.read();
+                b = file.read();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        file.close();
 
         return res;
     }
 
     public List<String[]> readCSV() throws FileException {
-        CSVReader reader ;
-        List<String[]> result = new ArrayList<String[]>();
+        CSVReader reader = null;
+        List<String[]> result = new ArrayList<>();
         try {
             reader = new CSVReader(new FileReader(path));
             String[] line;
             while ((line = reader.readNext()) != null) {
                 result.add(line);
             }
-            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
             throw new FileException(e);
+        }
+        finally {
+            try {
+                reader.close();
+            } catch (IOException | NullPointerException e) {
+                throw new FileException(e);
+            }
         }
         return result;
     }
 
     public String[] readHeaderCSV() throws FileException {
-        CSVReader reader ;
+        CSVReader reader = null;
         String[] result;
         try {
             reader = new CSVReader(new FileReader(path));
             result = reader.readNext();
-            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
             throw new FileException(e);
+        }
+        finally {
+            try {
+                reader.close();
+            } catch (IOException | NullPointerException e) {
+                throw new FileException(e);
+            }
         }
         return result;
     }
 
-    public void write(String st) throws IOException {
-        file = new RandomAccessFile(path, "rw");
-        file.write(st.getBytes());
-        file.close();
-    }
-
-    public void writeCSV(List<String[]> rows) throws FileException {
-        CSVWriter writer;
+    public void write(String string) throws FileException {
         try {
-            writer = new CSVWriter(new FileWriter(path));
-            writer.writeAll(rows);
-            writer.close();
+            file.write(string.getBytes());
         } catch (IOException e) {
-            e.printStackTrace();
             throw new FileException(e);
         }
     }
 
+    public void writeCSV(List<String[]> rows) throws FileException {
+        CSVWriter writer = null;
+        try {
+            writer = new CSVWriter(new FileWriter(path));
+            writer.writeAll(rows);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new FileException(e);
+        }
+        finally {
+            try {
+                writer.close();
+            } catch (IOException | NullPointerException e) {
+                throw new FileException(e);
+            }
+        }
+    }
 
-    public void writeAppendCSV(String[] rows) {
+
+    public void writeAppendCSV(String[] rows) throws FileException {
         List<String[]> lines = new ArrayList<>();
         lines.add(rows);
         this.writeAppendCSV(lines);
     }
 
-    public void writeAppendCSV(List<String[]> rows) {
-        CSVWriter writer;
+    public void writeAppendCSV(List<String[]> rows) throws FileException {
+        CSVWriter writer = null;
         try {
             writer = new CSVWriter(new FileWriter(path, true));
             if (rows != null)
                 writer.writeAll(rows);
-            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
+            throw new FileException(e);
+        }
+        finally {
+            try {
+                writer.close();
+            } catch (IOException | NullPointerException e) {
+                throw new FileException(e);
+            }
         }
     }
 
-    public void create(String path) throws IOException {
-        File file = new File(path);
-        if (!file.exists()) {
-            file.getParentFile().mkdirs();
-            file.createNewFile();
+    public static boolean create(String filePath) throws FileException {
+        File newFile = new File(filePath);
+        if (!newFile.exists()) {
+            newFile.getParentFile().mkdirs();
+            try {
+                return newFile.createNewFile();
+            } catch (IOException e) {
+                throw new FileException(e);
+            }
+        }
+        return false;
+    }
+
+    public static boolean delete(String filePath) {
+        File newFile = new File(filePath);
+        return newFile.delete();
+    }
+
+    public static void makeDirectory(String filePath) {
+        File newfile = new File(filePath);
+        if (!newfile.isDirectory()) {
+            newfile.mkdirs();
         }
     }
 
-    public void delete(String path) {
-        File file = new File(path);
-        file.delete();
-    }
-
-    public void makeDirectory(String path) {
-        File file = new File(path);
-        if (!file.isDirectory()) {
-            file.mkdirs();
+    public static void removeDirectory(String filePath) {
+        File newFile = new File(filePath);
+        if (!newFile.isDirectory()) {
+            newFile.delete();
         }
     }
 
-    public void removeDirectory(String path) {
-        File file = new File(path);
-        if (!file.isDirectory()) {
-            file.delete();
-        }
+    public boolean exists(){
+        return FileWorker.fileExists(path);
+
     }
 
-    public boolean fileExists(String path) {
+    public static boolean fileExists(String path) {
         File file = new File(path);
         if (file.isDirectory()) {
             return false;
         }
         return file.exists();
+    }
+
+    public void close() throws FileException {
+        try {
+            file.close();
+        } catch (IOException e) {
+            throw new FileException(e);
+        }
     }
 }
