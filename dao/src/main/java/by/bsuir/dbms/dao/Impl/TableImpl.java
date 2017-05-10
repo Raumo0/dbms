@@ -27,8 +27,9 @@ public class TableImpl implements Table {
         FileWorker fileWorker = null;
         try {
             fileWorker = new FileWorker(name, "rw");
-        List<String[]> lines = new ArrayList<>(rows);
-        lines.add(0, header);
+            List<String[]> lines = new ArrayList<>(rows);
+            if (header != null && header.length != 0)
+                lines.add(0, header);
             fileWorker.writeCSV(lines);
         } catch (FileException e) {
             e.printStackTrace();
