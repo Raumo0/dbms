@@ -33,7 +33,10 @@ public class InsertImplTest {
         boolean completed;
         List<String[]> actual;
         List<String[]> expected = new ArrayList<>();
-        String table = DAOConstants.PATH_DB_TEST + "insert.csv";
+        String table = DAOConstants.PATH_DB_TEST +
+                Thread.currentThread().getStackTrace()[1].getClassName() +
+                "_" +
+                Thread.currentThread().getStackTrace()[1].getMethodName();
         Insert insert = InsertImpl.getInstance();
         FileWorker fileWorker;
         if (FileWorker.fileExists(table))
@@ -73,7 +76,10 @@ public class InsertImplTest {
         boolean completed;
         List<String[]> actual;
         List<String[]> expected = new ArrayList<>();
-        String table = DAOConstants.PATH_DB_TEST + "insert_different.csv";
+        String table = DAOConstants.PATH_DB_TEST +
+                Thread.currentThread().getStackTrace()[1].getClassName() +
+                "_" +
+                Thread.currentThread().getStackTrace()[1].getMethodName();
         FileWorker fileWorker;
         Insert insert = InsertImpl.getInstance();
 
