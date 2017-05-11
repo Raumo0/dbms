@@ -194,7 +194,6 @@ public class FileWorker {
 
     public boolean exists(){
         return FileWorker.fileExists(path);
-
     }
 
     public static boolean fileExists(String path) {

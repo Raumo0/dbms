@@ -92,6 +92,27 @@ public class TableImplTest {
         Assert.assertTrue(msg, fileWorker.fileExists(filePath));
         fileWorker.close();
         table.delete(filePath);
-        Assert.assertFalse(msg, FileWorker.fileExists(filePath));
+        boolean exists = FileWorker.fileExists(filePath);
+        if (exists)
+            FileWorker.delete(filePath);
+        Assert.assertFalse(msg, exists);
+    }
+
+    @Test
+    public void tableExists() throws Exception {
+        String msg = Thread.currentThread().getStackTrace()[1].getMethodName() + assertMsg;
+        String filePath = DAOConstants.PATH_DB_TEST +
+                Thread.currentThread().getStackTrace()[1].getClassName() +
+                "_" +
+                Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileWorker fileWorker = new FileWorker(filePath, "rw");
+        TableImpl table = TableImpl.getInstance();
+
+        fileWorker.create(filePath);
+        Assert.assertTrue(msg, fileWorker.fileExists(filePath));
+        fileWorker.close();
+        Assert.assertTrue(msg, table.tableExists(filePath));
+        Assert.assertTrue(msg, FileWorker.fileExists(filePath));
+        FileWorker.delete(filePath);
     }
 }

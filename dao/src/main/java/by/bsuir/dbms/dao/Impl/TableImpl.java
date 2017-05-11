@@ -48,6 +48,11 @@ public class TableImpl implements Table {
         FileWorker.delete(name);
     }
 
+    @Override
+    public boolean tableExists(String tableName) {
+        return FileWorker.fileExists(tableName);
+    }
+
     private static class SingletonHolder{
         private static final TableImpl INSTANCE = new TableImpl();
     }

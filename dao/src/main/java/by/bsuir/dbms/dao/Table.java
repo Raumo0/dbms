@@ -9,4 +9,5 @@ public interface Table {
     void create(String name, String[] header) throws DAOException;
     void create(String name, String[] header, List<String[]> rows) throws DAOException;
     void delete(String name);
+    boolean tableExists(String tableName);
 }
